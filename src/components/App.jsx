@@ -1,65 +1,121 @@
 import React, { Component } from 'react';
-import ArticleList from './ArticleList/ArticleList';
+import ImageGallery from './ImageGallery/ImageGallery';
 import Loader from './Loader/Loader';
 import ErrorNotification from './ErrorNotification/ErrorNotification';
+import ClickMoreButton from './Buttons/ClickMoreButton';
 import SearchForm from './SearchForm/SearchForm';
-import CategorySelelctor from './SeacrhBox/CategorySelelctor';
-import * as ArticleApi from '../services/ArticleApi';
+import ModalWindow from './ModalWindow/ModalWindow';
+import * as API from '../services/API';
 
-const mapper = articles => {
-  return articles.map(({ objectID: id, url: link, ...props }) => ({
-    id,
-    link,
-    ...props,
-  }));
+const mapper = items => {
+  return items.map(
+    ({
+      id,
+      webformatURL: smallImageLink,
+      largeImageURL: largeImageLink,
+      tags,
+      ...props
+    }) => ({
+      id,
+      smallImageLink,
+      largeImageLink,
+      tags,
+      ...props,
+    }),
+  );
 };
 
 export default class App extends Component {
   state = {
-    articles: [],
+    items: [],
     isLoading: false,
     error: null,
-    category: '',
+    searchQuery: '',
+    pageNumber: 1,
+    openModal: false,
+    imageID: '',
   };
 
   componentDidMount() {
-    this.fetchArticles();
+    this.fetchItems();
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { category } = this.state;
-    if (prevState.category !== category) {
-      this.fetchArticles(category);
+    const { searchQuery, pageNumber } = this.state;
+    if (prevState.searchQuery !== searchQuery) {
+      this.fetchItems(searchQuery, pageNumber);
+    }
+    if (prevState.pageNumber !== pageNumber) {
+      API.getItems(searchQuery, pageNumber)
+        .then(({ data }) =>
+          this.setState(state => ({
+            items: mapper([...state.items, ...data.hits]),
+          })),
+        )
+        .catch(err => {
+          throw new Error(err);
+        })
+        .finally(() => this.setState({ isLoading: false }));
     }
   }
 
-  fetchArticles = querry => {
+  fetchItems = (query, pageNumber) => {
     this.setState({ isLoading: true });
-    ArticleApi.fetchArticles(querry)
+    API.getItems(query, pageNumber)
       .then(({ data }) => {
-        this.setState({ articles: mapper(data.hits) });
+        this.setState({ items: mapper(data.hits) });
       })
       .catch(error => this.setState({ error }))
       .finally(() => this.setState({ isLoading: false }));
+  };
+
+  handleSubmit = value => {
+    this.setState({ searchQuery: value, items: [], pageNumber: 1 });
   };
 
   handleCategoryChange = e => {
     this.setState({ category: e.target.value });
   };
 
+  handleClickImage = id => {
+    const { openModal } = this.state;
+    this.setState({ openModal: !openModal, imageID: id });
+  };
+
+  handleClickMore = () => {
+    this.setState(prevState => ({ pageNumber: prevState.pageNumber + 1 }));
+  };
+
   render() {
-    const { articles, isLoading, error, category } = this.state;
+    const {
+      items,
+      isLoading,
+      error,
+      openModal,
+      imageID,
+      category,
+    } = this.state;
     return (
       <div>
-        <SearchForm onSubmit={this.fetchArticles} />
-        <CategorySelelctor
+        <SearchForm onSubmit={this.handleSubmit} />
+        {/* <CategorySelelctor
           options={['html', 'css', 'javascript']}
           value={category}
           onChange={this.handleCategoryChange}
-        />
+        /> */}
         {error && <ErrorNotification text={error.message} />}
         {isLoading && <Loader />}
-        {articles.length > 0 && <ArticleList items={articles} />}
+        {<ImageGallery items={items} clickImg={this.handleClickImage} />}
+        {items.length > 0 && (
+          <ClickMoreButton clickMore={this.handleClickMore} />
+        )}
+        {openModal && (
+          <ModalWindow
+            items={items}
+            idForImage={imageID}
+            clickImg={this.handleClickImage}
+          />
+        )}
       </div>
     );
   }
