@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import styles from './Button.module.css';
 
 const ClickMoreButton = ({ clickMore }) => {
   window.scrollTo({
@@ -7,7 +8,7 @@ const ClickMoreButton = ({ clickMore }) => {
     behavior: 'smooth',
   });
   return (
-    <button onClick={clickMore} className="Button" type="button">
+    <button onClick={clickMore} className={styles.Button} type="button">
       More
     </button>
   );

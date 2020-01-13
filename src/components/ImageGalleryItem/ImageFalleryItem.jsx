@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import styles from './ImageGalleryItem.module.css';
 
 const ImageGalleryItem = ({ item: { smallImageLink, id, tags }, clickImg }) => {
   return (
     <li
-      className="ImageGalleryItem"
+      className={styles.ImageGalleryItem}
       onClick={() => clickImg(id)}
       role="presentation"
     >
@@ -12,7 +13,7 @@ const ImageGalleryItem = ({ item: { smallImageLink, id, tags }, clickImg }) => {
         id={id}
         src={smallImageLink}
         alt={tags}
-        className="ImageGalleryItem-image"
+        className={styles.ImageGalleryItem_image}
       />
     </li>
   );

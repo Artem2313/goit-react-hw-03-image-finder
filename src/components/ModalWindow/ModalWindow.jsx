@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import styles from './ModalWindow.module.css';
 
 class ModalWindow extends Component {
   static propTypes = {
@@ -26,7 +27,7 @@ class ModalWindow extends Component {
 
   handleCloseImg = e => {
     const { clickImg } = this.props;
-    if (e.target.className !== 'Overlay') return;
+    if (e.target.className !== styles.Overlay) return;
     clickImg();
   };
 
@@ -36,10 +37,10 @@ class ModalWindow extends Component {
     return (
       <div
         onClick={this.handleCloseImg}
-        className="Overlay"
+        className={styles.Overlay}
         role="presentation"
       >
-        <div className="Modal">
+        <div className={styles.Modal}>
           <img src={itemImage.largeImageLink} alt={itemImage.tags} />
         </div>
       </div>

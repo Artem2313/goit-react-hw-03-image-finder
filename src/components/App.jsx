@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import mapper from './Mapper/Mapper';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Loader from './Loader/Loader';
 import ErrorNotification from './ErrorNotification/ErrorNotification';
@@ -6,24 +7,7 @@ import ClickMoreButton from './Buttons/ClickMoreButton';
 import SearchForm from './SearchForm/SearchForm';
 import ModalWindow from './ModalWindow/ModalWindow';
 import * as API from '../services/API';
-
-const mapper = items => {
-  return items.map(
-    ({
-      id,
-      webformatURL: smallImageLink,
-      largeImageURL: largeImageLink,
-      tags,
-      ...props
-    }) => ({
-      id,
-      smallImageLink,
-      largeImageLink,
-      tags,
-      ...props,
-    }),
-  );
-};
+import styles from './App.module.css';
 
 export default class App extends Component {
   state = {
@@ -70,11 +54,12 @@ export default class App extends Component {
   };
 
   handleSubmit = value => {
-    this.setState({ searchQuery: value, items: [], pageNumber: 1 });
-  };
-
-  handleCategoryChange = e => {
-    this.setState({ category: e.target.value });
+    this.setState({
+      searchQuery: value,
+      items: [],
+      pageNumber: 1,
+      openModal: false,
+    });
   };
 
   handleClickImage = id => {
@@ -87,22 +72,10 @@ export default class App extends Component {
   };
 
   render() {
-    const {
-      items,
-      isLoading,
-      error,
-      openModal,
-      imageID,
-      category,
-    } = this.state;
+    const { items, isLoading, error, openModal, imageID } = this.state;
     return (
-      <div>
+      <div className={styles.App}>
         <SearchForm onSubmit={this.handleSubmit} />
-        {/* <CategorySelelctor
-          options={['html', 'css', 'javascript']}
-          value={category}
-          onChange={this.handleCategoryChange}
-        /> */}
         {error && <ErrorNotification text={error.message} />}
         {isLoading && <Loader />}
         {<ImageGallery items={items} clickImg={this.handleClickImage} />}
@@ -112,7 +85,7 @@ export default class App extends Component {
         {openModal && (
           <ModalWindow
             items={items}
-            idForImage={imageID}
+            imageID={imageID}
             clickImg={this.handleClickImage}
           />
         )}
