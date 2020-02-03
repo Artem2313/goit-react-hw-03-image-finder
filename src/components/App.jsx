@@ -41,7 +41,15 @@ export default class App extends Component {
         })
         .finally(() => this.setState({ isLoading: false }));
     }
+    this.scrolling();
   }
+
+  scrolling = () => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth',
+    });
+  };
 
   fetchItems = (query, pageNumber) => {
     this.setState({ isLoading: true });

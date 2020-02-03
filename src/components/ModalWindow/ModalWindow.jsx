@@ -4,12 +4,10 @@ import styles from './ModalWindow.module.css';
 
 class ModalWindow extends Component {
   static propTypes = {
-    items: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+    items: PropTypes.arrayOf(PropTypes.object.isRequired).isRequired,
     imageID: PropTypes.number.isRequired,
     clickImg: PropTypes.func.isRequired,
   };
-
-  state = {};
 
   componentDidMount() {
     window.addEventListener('keydown', this.closeImg);
